@@ -973,7 +973,7 @@ MTK_MTKLOGGER_SUPPORT=yes
 
 # enable/disable ogm and mtkps playback feature
 MTK_MTKPS_PLAYBACK_SUPPORT=no
-MTK_MULTIBRIDGE_SUPPORT=no
+MTK_MULTIBRIDGE_SUPPORT=yes
 
 # Use to set multi sim card ringtone/video call/sip call.
 MTK_MULTISIM_RINGTONE_SUPPORT=no
