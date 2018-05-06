@@ -112,7 +112,7 @@ CUSTOM_KERNEL_DCT=dct
 CUSTOM_KERNEL_EEPROM=dummy_eeprom
 
 # Kernel space cameara flashlight driver. You can use this driver to choose cameara flashlight type.
-CUSTOM_KERNEL_FLASHLIGHT=constant_flashlight
+CUSTOM_KERNEL_FLASHLIGHT=dummy_flashlight
 
 # gyro driver
 CUSTOM_KERNEL_GYROSCOPE=
@@ -152,7 +152,7 @@ CUSTOM_KERNEL_MAIN_LENS=fm50af
 CUSTOM_KERNEL_RTC=rtc
 
 # For audio kernel driver's speaker customization folder definition.
-CUSTOM_KERNEL_SOUND=amp_yad
+CUSTOM_KERNEL_SOUND=amp_yad_2in1_2_spk
 CUSTOM_KERNEL_SSW=ssw_single
 
 # lens driver config for video telephony camera (2nd solution)
@@ -165,7 +165,7 @@ CUSTOM_KERNEL_SUB_IMGSENSOR=sp0a19_yuv
 CUSTOM_KERNEL_SUB_LENS=dummy_lens
 
 # touch driver  need to report correct touch axes
-CUSTOM_KERNEL_TOUCHPANEL=ft5206 #GT9XX
+CUSTOM_KERNEL_TOUCHPANEL=GT9XX
 
 # Configuration for USB PHY
 CUSTOM_KERNEL_USB=mt6577
@@ -174,7 +174,7 @@ CUSTOM_KERNEL_USB=mt6577
 CUSTOM_KERNEL_VIBRATOR=vibrator
 
 # To choose LK LCM driver name
-CUSTOM_LK_LCM=hx8389b_qhd_dsi_vdo_tianma
+CUSTOM_LK_LCM=KD079D1_MIPI4LVDS NT51021B_MIPI_DSI
 
 # A mechanism for customer to enable their own sign key.
 CUSTOM_PRELOADER_CUSTOM=custom
@@ -1568,16 +1568,16 @@ MTK_HDMI_SUPPORT=no
 BOOT_LOGO=cu_qhd
 
 # To choose kernel LCM driver name
-CUSTOM_KERNEL_LCM=hx8389b_qhd_dsi_vdo_tianma
+CUSTOM_KERNEL_LCM=KD079D1_MIPI4LVDS NT51021B_MIPI_DSI
 
 # To choose uboot LCM driver name
-CUSTOM_UBOOT_LCM=hx8389b_qhd_dsi_vdo_tianma
+CUSTOM_UBOOT_LCM=KD079D1_MIPI4LVDS NT51021B_MIPI_DSI
 
 # To set LCM resolution height size
-LCM_HEIGHT=960
+LCM_HEIGHT=1024
 
 # To set LCM resolution width size
-LCM_WIDTH=540
+LCM_WIDTH=600
 
 # To control resource build. The value would be assigned to PRODUCT_LOCALES under build/target/product/XXX.mk (XXX is each project's name)
 MTK_PRODUCT_LOCALES=en_US es_ES zh_CN zh_TW ru_RU pt_BR fr_FR de_DE tr_TR it_IT in_ID ms_MY vi_VN ar_EG  th_TH  pt_PT   nl_NL el_GR hu_HU tl_PH ro_RO cs_CZ iw_IL my_MM km_KH ko_KR pl_PL es_US bg_BG hr_HR lv_LV lt_LT sk_SK uk_UA de_AT da_DK fi_FI nb_NO sv_SE en_GB

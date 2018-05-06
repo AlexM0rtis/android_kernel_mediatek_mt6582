@@ -138,8 +138,21 @@ extern LCM_DRIVER r69429_wuxga_dsi_vdo_lcm_drv;
 extern LCM_DRIVER r69429_wuxga_dsi_cmd_lcm_drv;
 extern LCM_DRIVER rm68210_hd720_dsi_ufoe_cmd_lcm_drv;
 extern LCM_DRIVER r63311_fhd_dsi_vedio_lcm_drv;
+//add by AlexM0rtis
+extern LCM_DRIVER KD079D1_MIPI4LVDS_lcm_drv;
+
+extern LCM_DRIVER nt51021b_mipi_dsi_lcm_drv;
+
 LCM_DRIVER* lcm_driver_list[] = 
-{ 
+{
+#if defined(NT51021B_MIPI_DSI)
+    &nt51021b_mipi_dsi_lcm_drv,
+#endif
+
+#if defined(KD079D1_MIPI4LVDS)
+    &KD079D1_MIPI4LVDS_lcm_drv,
+#endif	
+	 
 #if defined(R63311_FHD_DSI_VDO)
 	&r63311_fhd_dsi_vedio_lcm_drv,
 #endif

@@ -5,6 +5,18 @@
 #include <cust_gpio_usage.h>
 #include <mach/mt_gpio.h>
 #include <mach/eint.h>
+#include <cust_eint.h>
+#include <mach/mt_gpio.h>
+#include <linux/irq.h>
+#include <mach/eint.h>
+#include <mach/eint_drv.h>
+
+
+//huangshiguo
+//#define HQ_35MM_TI_ENABLE
+#define HQ_35MM_EARPHONE_TEST //121213 huangshiguo temp test
+#define GPIO_HEADSET_SWITCH1 GPIO116
+#define GPIO_HEADSET_SWITCH2 GPIO117
 
 
 #define SW_WORK_AROUND_ACCDET_REMOTE_BUTTON_ISSUE
@@ -84,11 +96,64 @@ static int g_accdet_working_in_suspend =0;
 static struct work_struct accdet_eint_work;
 static struct workqueue_struct * accdet_eint_workqueue = NULL;
 
+#if 1 //add for sim hotplug zzf
+extern void mt_eint_unmask(unsigned int line);
+extern void mt_eint_mask(unsigned int line);
+extern void mt_eint_set_polarity(unsigned int eint_num, unsigned int pol);
+extern void mt_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms);
+extern unsigned int mt_eint_set_sens(unsigned int eint_num, unsigned int sens);
+extern void mt_eint_registration(unsigned int eint_num, unsigned int flag, 
+              void (EINT_FUNC_PTR) (void), unsigned int is_auto_umask);
+
+
+
+#define KEY_SIMCHANGED 251
+static int current_headset_key = KEY_UNKNOWN; //kaka_12_0116 add
+//add for sim hotplug by zzf
+#define GPIO_SIM_DECTECT GPIO2
+u8 sim_state = 0;
+unsigned int eintnum=2;
+static void sim_eint_func(void)
+{
+	int ret=0;
+
+	mt_eint_mask(eintnum); 
+	printk("huangyisong sim_eint_func start\n");
+	sim_state = !sim_state;
+	mt_eint_set_polarity(eintnum, sim_state);
+	mt_eint_unmask(eintnum); 
+
+	ACCDET_DEBUG("[Accdet] SIM status change!\n");
+	current_headset_key = KEY_SIMCHANGED;//KEY_HEADSETHOOK;//KEY_SIMCHANGED; 
+	input_report_key(kpd_accdet_dev, current_headset_key, 1);
+	input_report_key(kpd_accdet_dev, current_headset_key, 0);
+	input_sync(kpd_accdet_dev);
+}
+
+
+static inline int sim_setup_eint(void)
+{
+	printk("sim_setup_eint start\n");
+	printk("<6>sim_setup_eint start\n");
+	mt_set_gpio_mode(GPIO_SIM_DECTECT, GPIO_MODE_03);
+	mt_set_gpio_dir(GPIO_SIM_DECTECT, GPIO_DIR_IN);
+	mt_set_gpio_pull_enable(GPIO_SIM_DECTECT, GPIO_PULL_UP); //To disable GPIO PULL.
+	
+	mt_eint_set_sens(eintnum, 1);//0); //change CUST_EINT_EDGE_SENSITIVE to CUST_EINT_LEVEL_SENSITIVE
+
+	mt_eint_set_hw_debounce(eintnum, 100);//Enable HW DEBOUNCE
+	mt_eint_registration(eintnum, 1, sim_eint_func, 0);  
+	mt_eint_unmask(eintnum);  
+
+    return 0;	
+}
+#endif
+
+
 static inline void accdet_init(void);
 
 
-#ifdef ACCDET_LOW_POWER
-
+#if 1 //def ACCDET_LOW_POWER
 #include <linux/timer.h>
 #define MICBIAS_DISABLE_TIMER   (6 *HZ)         //6 seconds
 struct timer_list micbias_timer;
@@ -99,7 +164,6 @@ static void disable_micbias(unsigned long a);
 int cur_eint_state = EINT_PIN_PLUG_OUT;
 static struct work_struct accdet_disable_work;
 static struct workqueue_struct * accdet_disable_workqueue = NULL;
-
 #endif
 
 #endif//end ACCDET_EINT
@@ -339,6 +403,10 @@ static void disable_micbias_callback(struct work_struct *work)
 	#endif
 }
 
+#if defined(HQ_35MM_EARPHONE_TEST)//huangshiguo test 3.5mm earphone
+extern int IMM_GetOneChannelValue(int dwChannel, int data[4], int* rawdata);
+#endif
+
 static void accdet_eint_work_callback(struct work_struct *work)
 {
    //KE under fastly plug in and plug out
@@ -364,6 +432,12 @@ static void accdet_eint_work_callback(struct work_struct *work)
 			msleep(250); //PIN swap need ms 
 		#endif
 		
+		//huangshiguo test 3.5mm earphone
+        #if defined(HQ_35MM_EARPHONE_TEST)
+            mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ONE);
+            mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+        #endif
+		
 			accdet_init();// do set pwm_idle on in accdet_init
 		
 		#ifdef ACCDET_PIN_RECOGNIZATION
@@ -379,6 +453,35 @@ static void accdet_eint_work_callback(struct work_struct *work)
 		#endif  
 		//enable ACCDET unit
 			enable_accdet(ACCDET_SWCTRL_EN); 
+
+		//huangshiguo test 3.5mm earphone
+        #if defined(HQ_35MM_EARPHONE_TEST)
+	        int accdet_adc=0;
+	        int data[4];
+	        msleep(80);//80
+	        accdet_adc = IMM_GetOneChannelValue(0,data,NULL);
+	        accdet_adc = data[0]*1000+data[1]*10;
+	        printk("[Accdet_zym] accdet_eint_work_callback accdet_adc=%d(%d.%d)\n",accdet_adc,data[0],data[1]);
+	        if(accdet_adc < 500)//<500
+	        {
+	            printk("[Accdet_zym] apple headset!!!\n");
+	            mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ZERO);
+	            mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ONE);
+	        }
+	        else
+	        {
+	            printk("[Accdet_zym] huaqin headset!!!\n");
+	            mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ONE);
+	            mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+	        }
+        #endif
+
+		//add by zym for ti ic
+        #if defined(HQ_35MM_TI_ENABLE)
+            msleep(500);
+            mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ONE);
+            msleep(250);
+        #endif
     } else {
 //EINT_PIN_PLUG_OUT
 //Disable ACCDET
@@ -402,6 +505,17 @@ static void accdet_eint_work_callback(struct work_struct *work)
 			accdet_auxadc_switch(0);
 			disable_accdet();			   
 			headset_plug_out();
+			
+			//huangshiguo test 3.5mm earphone
+            #if defined(HQ_35MM_EARPHONE_TEST)
+			   mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ONE);
+			   mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+	       #endif
+            //add by zym for ti ic
+            #if defined(HQ_35MM_TI_ENABLE)
+                mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+            #endif
+			
 			#ifdef ACCDET_28V_MODE
 			pmic_pwrap_write(ACCDET_RSV, ACCDET_1V9_MODE_OFF);
 			ACCDET_DEBUG("ACCDET use in 1.9V mode!! \n");
@@ -977,7 +1091,27 @@ static inline void check_cable_type(void)
 				break;
 			case SHORT_MD:
 				ACCDET_DEBUG("[Accdet] Short press middle (0x%x)\n", multi_key);
-                                 notify_sendKeyEvent(ACC_MEDIA_PLAYPAUSE);
+						   if(call_status == 0)
+								 notify_sendKeyEvent(ACC_MEDIA_PLAYPAUSE);
+						   else
+							//add by zym
+							{
+								if(call_status == 1)
+								{
+									ACCDET_DEBUG("[Accdet]+++zym+++++send short press remote button event %d\n",ACC_ANSWER_CALL);
+									//input_report_key(kpd_accdet_dev, KEY_CALL, 1); 
+									// input_report_key(kpd_accdet_dev, KEY_CALL, 0);	 
+									notify_sendKeyEvent(ACC_MEDIA_PLAYPAUSE);
+								}
+								else
+								{
+									ACCDET_DEBUG("[Accdet]++++jason++++send short press remote button event %d\n",ACC_END_CALL);
+									//input_report_key(kpd_accdet_dev, KEY_CALL, 1); 
+									// input_report_key(kpd_accdet_dev, KEY_CALL, 0);	 
+									notify_sendKeyEvent(ACC_END_CALL);
+								}
+							}
+							//end by zym
 				break;
 			case SHORT_DW:
 				ACCDET_DEBUG("[Accdet] Short press down (0x%x)\n", multi_key);
@@ -997,7 +1131,27 @@ static inline void check_cable_type(void)
 				break;
 			case LONG_MD:
 				ACCDET_DEBUG("[Accdet] Long press middle (0x%x)\n", multi_key);
-                                 notify_sendKeyEvent(ACC_END_CALL);
+                           if(call_status == 0)
+                             notify_sendKeyEvent(ACC_MEDIA_STOP);
+                           else
+	                        //add by zym
+	                        {
+	                            if(call_status == 1)
+	                            {
+	                                ACCDET_DEBUG("[Accdet]send long press remote button event %d \n",ACC_END_CALL);
+	                                //input_report_key(kpd_accdet_dev, KEY_ENDCALL, 1); 
+	                                //input_report_key(kpd_accdet_dev, KEY_ENDCALL, 0); 
+	                                notify_sendKeyEvent(ACC_END_CALL); 
+	                            }
+	                            else
+	                            {
+	                                ACCDET_DEBUG("[Accdet]send long press remote button event %d \n",ACC_ANSWER_CALL);
+	                                //input_report_key(kpd_accdet_dev, KEY_ENDCALL, 1); 
+	                                //input_report_key(kpd_accdet_dev, KEY_ENDCALL, 0); 
+	                                notify_sendKeyEvent(ACC_MEDIA_PLAYPAUSE);
+	                            }
+	                        }
+	                        //end by zym
 				break;
 			case LONG_DW:
 				ACCDET_DEBUG("[Accdet] Long press down (0x%x)\n", multi_key);			
@@ -1051,6 +1205,17 @@ static inline void check_cable_type(void)
 		        if(1 == eint_accdet_sync_flag) {
 		   			accdet_status = PLUG_OUT;		
 	          		cable_type = NO_DEVICE;
+					
+					//huangshiguo test 3.5mm earphone
+		            #if defined(HQ_35MM_EARPHONE_TEST)
+					   mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ONE);
+					   mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+			        #endif
+
+					//add by zym for ti ic
+		            #if defined(HQ_35MM_TI_ENABLE)
+		                mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+		            #endif
 				}else {
 					ACCDET_DEBUG("[Accdet] Headset has plugged out\n");
 			 	}
@@ -1542,6 +1707,7 @@ int mt_accdet_probe(void)
     __set_bit(KEY_STOPCD, kpd_accdet_dev->keybit);
 	__set_bit(KEY_VOLUMEDOWN, kpd_accdet_dev->keybit);
     __set_bit(KEY_VOLUMEUP, kpd_accdet_dev->keybit);
+	__set_bit(KEY_SIMCHANGED, kpd_accdet_dev->keybit);//add for sim hotplug zzf
 	
 	kpd_accdet_dev->id.bustype = BUS_HOST;
 	kpd_accdet_dev->name = "ACCDET";
@@ -1566,6 +1732,27 @@ int mt_accdet_probe(void)
     wake_lock_init(&accdet_irq_lock, WAKE_LOCK_SUSPEND, "accdet irq wakelock");
     wake_lock_init(&accdet_key_lock, WAKE_LOCK_SUSPEND, "accdet key wakelock");
 	wake_lock_init(&accdet_timer_lock, WAKE_LOCK_SUSPEND, "accdet timer wakelock");
+
+//huangshiguo test 3.5mm earphone
+#if defined(HQ_35MM_EARPHONE_TEST)
+	mt_set_gpio_mode(GPIO_HEADSET_SWITCH2,GPIO_MODE_00);  // gpio mode
+	mt_set_gpio_pull_enable(GPIO_HEADSET_SWITCH2,GPIO_PULL_ENABLE);
+	mt_set_gpio_dir(GPIO_HEADSET_SWITCH2,GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+	
+	mt_set_gpio_mode(GPIO_HEADSET_SWITCH1,GPIO_MODE_00);  // gpio mode
+	mt_set_gpio_pull_enable(GPIO_HEADSET_SWITCH1,GPIO_PULL_ENABLE);
+	mt_set_gpio_dir(GPIO_HEADSET_SWITCH1,GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_HEADSET_SWITCH1,GPIO_OUT_ONE);
+#endif
+
+#if defined(HQ_35MM_TI_ENABLE)
+    mt_set_gpio_mode(GPIO_HEADSET_SWITCH2,GPIO_MODE_00);  // gpio mode
+	mt_set_gpio_pull_enable(GPIO_HEADSET_SWITCH2,GPIO_PULL_ENABLE);
+	mt_set_gpio_dir(GPIO_HEADSET_SWITCH2,GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_HEADSET_SWITCH2,GPIO_OUT_ZERO);
+#endif
+
 #ifdef SW_WORK_AROUND_ACCDET_REMOTE_BUTTON_ISSUE
      init_waitqueue_head(&send_event_wq);
      //start send key event thread
@@ -1599,6 +1786,8 @@ int mt_accdet_probe(void)
 		ACCDET_DEBUG("ACCDET use in 1.9V mode!! \n");
 		accdet_init();   
 		queue_work(accdet_workqueue, &accdet_work); //schedule a work for the first detection					
+		//add for sim hotplug by zzf
+		sim_setup_eint();
 		#ifdef ACCDET_EINT
 
           accdet_eint_workqueue = create_singlethread_workqueue("accdet_eint");
