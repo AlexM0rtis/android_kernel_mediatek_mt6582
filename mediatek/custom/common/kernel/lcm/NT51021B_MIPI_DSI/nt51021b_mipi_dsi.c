@@ -269,4 +269,3 @@ LCM_DRIVER nt51021b_mipi_dsi_lcm_drv =
 	.resume         = lcm_resume,
 	.compare_id    = lcm_compare_id,
 };
-

@@ -146,7 +146,7 @@ extern LCM_DRIVER nt51021b_mipi_dsi_lcm_drv;
 LCM_DRIVER* lcm_driver_list[] = 
 {
 #if defined(NT51021B_MIPI_DSI)
-    &nt51021b_mipi_dsi_lcm_drv,
+	&nt51021b_mipi_dsi_lcm_drv,
 #endif
 
 #if defined(KD079D1_MIPI4LVDS)
