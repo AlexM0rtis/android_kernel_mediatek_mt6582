@@ -1,4 +1,3 @@
-#if defined(MTK_MULTIBRIDGE_SUPPORT)
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/slab.h>
@@ -245,4 +244,3 @@ module_exit(sn65dsi8x_exit);
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("I2C sn65dsi8x Driver");
 MODULE_AUTHOR("jet.chen<chenguangjian@huaqin.com>");
-#endif
