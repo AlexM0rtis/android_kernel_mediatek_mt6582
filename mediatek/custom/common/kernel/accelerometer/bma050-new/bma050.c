@@ -3,7 +3,6 @@
  *
  * This software program is licensed subject to the GNU General Public License
  * (GPL).Version 2,June 1991, available at http://www.fsf.org/copyleft/gpl.html
-
  * (C) Copyright 2011 Bosch Sensortec GmbH
  * All Rights Reserved
  */
@@ -22,24 +21,21 @@
 #include <linux/platform_device.h>
 #include <asm/atomic.h>
 
-//#include <mach/mt_devs.h>
 #include <mach/mt_typedefs.h>
 #include <mach/mt_gpio.h>
 #include <mach/mt_pm_ldo.h>
 
 #include <accel.h>
-
-
-#define POWER_NONE_MACRO MT65XX_POWER_NONE
-
-
-
 #include <cust_acc.h>
 #include <linux/hwmsensor.h>
 #include <linux/hwmsen_dev.h>
 #include <linux/sensors_io.h>
 #include "bma050.h"
 #include <linux/hwmsen_helper.h>
+
+
+#define POWER_NONE_MACRO MT65XX_POWER_NONE
+
 /*----------------------------------------------------------------------------*/
 #define I2C_DRIVERID_BMA250 250
 /*----------------------------------------------------------------------------*/
