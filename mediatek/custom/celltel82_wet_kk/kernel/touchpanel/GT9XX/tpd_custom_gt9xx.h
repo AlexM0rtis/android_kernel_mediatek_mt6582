@@ -133,7 +133,7 @@ extern int i2c_read_bytes(struct i2c_client *client, u16 addr, u8 *rxbuf, int le
 #define GTP_HAVE_TOUCH_KEY    0
 #define GTP_POWER_CTRL_SLEEP  0       // turn off/on power on suspend/resume
 #define GTP_AUTO_UPDATE       0       // updated by .bin file
-#define GTP_DEF_FW_UPDATE     1       //  default firmware array update, function only when GTP_AUTO_UDPATE enabled
+#define GTP_DEF_FW_UPDATE     0       //  default firmware array update, function only when GTP_AUTO_UDPATE enabled
 #define GTP_CHANGE_X2Y        1
 #define GTP_ESD_PROTECT       0 
 #define GTP_CREATE_WR_NODE    1              
