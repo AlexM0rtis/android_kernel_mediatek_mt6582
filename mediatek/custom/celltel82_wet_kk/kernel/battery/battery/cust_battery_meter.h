@@ -13,6 +13,9 @@
 //#define CONFIG_DIS_CHECK_BATTERY
 //#define FIXED_TBAT_25
 
+#define BAT_VOL_USE_ISENSE
+#define SWCHR_POWER_PATH //for hw ocv use
+
 /* ADC Channel Number */
 #define CUST_TABT_NUMBER 17
 #define VBAT_CHANNEL_NUMBER      7
@@ -35,15 +38,15 @@
 #define FG_METER_RESISTANCE 	0
 
 /* Qmax for battery  */
-#define Q_MAX_POS_50	2250
-#define Q_MAX_POS_25	2250
-#define Q_MAX_POS_0		2250
-#define Q_MAX_NEG_10	2250
+#define Q_MAX_POS_50	3604
+#define Q_MAX_POS_25	3602
+#define Q_MAX_POS_0		3425
+#define Q_MAX_NEG_10	3110
 
-#define Q_MAX_POS_50_H_CURRENT	2250
-#define Q_MAX_POS_25_H_CURRENT	2250
-#define Q_MAX_POS_0_H_CURRENT	2250
-#define Q_MAX_NEG_10_H_CURRENT	2250
+#define Q_MAX_POS_50_H_CURRENT	3507
+#define Q_MAX_POS_25_H_CURRENT	3507
+#define Q_MAX_POS_0_H_CURRENT	3291
+#define Q_MAX_NEG_10_H_CURRENT	2914
 
 
 /* Discharge Percentage */
