@@ -642,11 +642,9 @@ static DEFINE_MUTEX(accdet_multikey_mutex);
 
 
 /*
-
         MD              UP                DW
 |---------|-----------|----------|
 0V<=MD< 0.09V<= UP<0.24V<=DW <0.5V
-
 */
 
 #define DW_KEY_HIGH_THR	 (500) //0.50v=500000uv
@@ -1906,7 +1904,6 @@ void mt_accdet_resume(void) // wake up
 }
 /**********************************************************************
 //add for IPO-H need update headset state when resume
-
 ***********************************************************************/
 #ifdef ACCDET_PIN_RECOGNIZATION	
 struct timer_list accdet_disable_ipoh_timer;
@@ -2005,4 +2002,3 @@ long mt_accdet_unlocked_ioctl(unsigned int cmd, unsigned long arg)
   }
   return 0;
 }
-

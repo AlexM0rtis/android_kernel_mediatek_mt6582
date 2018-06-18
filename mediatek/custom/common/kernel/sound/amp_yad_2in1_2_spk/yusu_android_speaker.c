@@ -61,9 +61,9 @@
 #include <mach/mt_gpio.h>
 #include <mach/mt_typedefs.h>
 
-#define ENABLE_2_IN_1_SPK
+//#define ENABLE_2_IN_1_SPK
 #define GPIO_SPEAKER_EN_PIN     GPIO12
-#define GPIO_SPEAKER_RECEIVER_SWITCH_PIN    GPIO16
+#define GPIO_SPEAKER_RECEIVER_SWITCH_PIN    GPIO15
 /*****************************************************************************
 *                C O M P I L E R      F L A G S
 ******************************************************************************
@@ -100,13 +100,13 @@ static bool grec_on=false;
 */
 extern void Yusu_Sound_AMP_Switch(BOOL enable);
 
-bool Speaker_Init(void)
+bool Speaker_Init(void) 
 {
    PRINTK("+Speaker_Init Success");
    mt_set_gpio_mode(GPIO_SPEAKER_EN_PIN,GPIO_MODE_00);  // gpio mode
-   mt_set_gpio_pull_enable(GPIO_SPEAKER_EN_PIN,GPIO_PULL_ENABLE);
+   mt_set_gpio_pull_enable(GPIO_SPEAKER_EN_PIN,GPIO_PULL_DISABLE);
    //add by zym 
-   mt_set_gpio_dir(GPIO_SPEAKER_EN_PIN,GPIO_DIR_OUT); // output
+   mt_set_gpio_dir(GPIO_SPEAKER_EN_PIN,GPIO_DIR_IN); // output
    mt_set_gpio_out(GPIO_SPEAKER_EN_PIN,GPIO_OUT_ZERO); // high
 
 #if defined(ENABLE_2_IN_1_SPK)
@@ -149,8 +149,8 @@ void Sound_Speaker_Turnon(int channel)
     PRINTK("Sound_Speaker_Turnon channel = %d\n",channel);
 	if(gsk_on)
 		return;
-    mt_set_gpio_dir(GPIO_SPEAKER_EN_PIN,GPIO_DIR_OUT); // output
-    mt_set_gpio_out(GPIO_SPEAKER_EN_PIN,GPIO_OUT_ONE); // high
+    mt_set_gpio_dir(GPIO_SPEAKER_EN_PIN,GPIO_DIR_IN); // output
+    mt_set_gpio_out(GPIO_SPEAKER_EN_PIN,GPIO_OUT_ZERO); // high
 
     mt_set_gpio_dir(GPIO_SPEAKER_RECEIVER_SWITCH_PIN,GPIO_DIR_OUT); // output
     mt_set_gpio_out(GPIO_SPEAKER_RECEIVER_SWITCH_PIN,GPIO_OUT_ZERO); // high
@@ -298,5 +298,3 @@ kal_int32 Sound_ExtFunction(const char* name, void* param, int param_size)
 
 	return 1;
 }
-
-
