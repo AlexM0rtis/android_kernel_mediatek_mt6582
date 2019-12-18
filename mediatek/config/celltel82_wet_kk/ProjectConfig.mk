@@ -152,7 +152,7 @@ CUSTOM_KERNEL_MAIN_LENS=fm50af
 CUSTOM_KERNEL_RTC=rtc
 
 # For audio kernel driver's speaker customization folder definition.
-CUSTOM_KERNEL_SOUND=amp_yad
+CUSTOM_KERNEL_SOUND=amp_6323pmic_spk
 CUSTOM_KERNEL_SSW=ssw_single
 
 # lens driver config for video telephony camera (2nd solution)
@@ -174,7 +174,7 @@ CUSTOM_KERNEL_USB=mt6577
 CUSTOM_KERNEL_VIBRATOR=vibrator
 
 # To choose LK LCM driver name
-CUSTOM_LK_LCM=hx8389b_qhd_dsi_vdo_tianma
+CUSTOM_LK_LCM=ili9806e_dsi_vdo
 
 # A mechanism for customer to enable their own sign key.
 CUSTOM_PRELOADER_CUSTOM=custom
@@ -695,7 +695,7 @@ MTK_FACTORY_MODE_IN_GB2312=yes
 MTK_FAN5402_SUPPORT=no
 
 # use external charger IC, MTK support
-MTK_FAN5405_SUPPORT=yes
+MTK_FAN5405_SUPPORT=no
 MTK_FASTBOOT_SUPPORT=no
 
 # For NAND phone such as in EMMC phone with internal sd card, FAT on NAND feature was cut from NAND to be a independent fat partition,and create FAT image file over /fat yaffs2 file system, then let NAND phone can support FAT file system in internal.
